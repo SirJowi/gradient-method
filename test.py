@@ -33,7 +33,7 @@ class gradientenbasierte_optimierung(optimierungsaufgabe):
         Beispiel fuer Methode einer Klasse
         """
 
-        print("Startpunkt", self.startpunkt) # Verwendung von Variablen
+        print("Startpunkt", self.startpunkt)  # Verwendung von Variablen
 
 # Test mit Zielfunktion Beispiel
 def z(x):
@@ -41,3 +41,4 @@ def z(x):
 
 optimierung_Uebung2 = gradientenbasierte_optimierung(z, [3, 2])
 optimierung_Uebung2.print_startpunkt()
+
