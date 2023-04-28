@@ -33,12 +33,13 @@ lower_border = 0.25
 
 # Startbedingungen -----------------------------------------------------------------------------------------------------
 x_vorher = np.array([0.5, 0.5])  # Startpunkt x_0 (2-dim vektor)
-print("Startpunkt eingeben x1:")
+print("Startpunkt eingeben [", lower_border, "< x1 <", upper_border, "] :")
 x_vorher[0] = input()
-print("Startpunkt eingeben x2:")
+print("Startpunkt eingeben [", lower_border, "< x2 <", upper_border, "] :")
 x_vorher[1] = input()
 b = 0  # Index des Schrittweiten-Arrays auf die maximale Schrittweite setzen
 i = 0  # Anzahl Grundlösungen (Der Iterator)
+rb_alert = 0
 
 # Ausgabe -------------------------------------------------------------------------------
 xSpeicher = [x_vorher]
@@ -61,6 +62,13 @@ while True:
     if ((x_aktuell[0] or x_aktuell[1]) < lower_border) or ((x_aktuell[0] or x_aktuell[1]) > upper_border):
         b = b + 1
         b = boundary(b)
+        rb_alert = rb_alert + 1
+        if rb_alert == 100:
+            print("|-----------------------------")
+            print("| Aufgrund von verletzten Randbedingungen kann keine Lösung gefunden werden.")
+            print("| Bitte wählen Sie einen anderen Startpunkt. ¯\_(ツ)_/¯ ")
+            print("|-----------------------------")
+            break
         continue
     # falls nicht verletzt, dann
     else:
@@ -77,6 +85,12 @@ while True:
 
         # Abbruchkriterium
         if abs(verbesserung) <= 0.01:
+            # Ausgabe des gefundenen Minimums und dessen Ort
+            print("|-----------------------------")
+            print("| Es wurde ein Minimum gefunden (◠‿◠)")
+            print("| Minimum:", f_aktuell)
+            print("| Ort des Minimum:", x_aktuell)
+            print("|-----------------------------")
             break
 
         if verbesserung < 0:
@@ -88,13 +102,6 @@ while True:
             x_vorher = x_aktuell
             xSpeicher.append(x_vorher)
             zSpeicher.append(f_vorher)
-
-# Ausgabe des gefundenen Minimums und dessen Ort
-print("-----------------------------")
-print("Es wurde ein Minimum gefunden")
-print("Minimum:", f_aktuell)
-print("Ort des Minimum:", x_aktuell)
-print("-----------------------------")
 
 
 # Anpassung Schriftart & -größe für Plots
