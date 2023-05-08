@@ -1,11 +1,11 @@
-""" Gradient Method - 11/04/23 """
+""" Gradientenmethode - 11/04/23 """
 
 import numpy as np
-import matplotlib.pyplot as plt  # Paket fürs grafische Darstellen
+import matplotlib.pyplot as plt  # Paket für grafische Darstellen
 from matplotlib import rc
 
 
-#  Überprüft, ob im zulässigen Bereich der Schrittweiten
+# Unterprogramm: Verhindert, dass das Schrittweiten-Array verlassen wird -----------------------------------------------
 def boundary(bound):
     if bound < 0:  # untere Grenze
         bound = 0
@@ -25,7 +25,7 @@ def grad(x):  # Gradient der Zielfunktion (manuell abgeleitet)
 
 
 # Schrittweiten-Array
-s = np.array([0.01, 0.005, 0.0025, 0.001])  # vorgegebene Schrittweiten lambda
+s = np.array([0.01, 0.005, 0.0025, 0.001])  # vorgegebene Schrittweiten
 
 # Nebenbedingungen
 upper_border = 1.0
@@ -37,19 +37,19 @@ print("Startpunkt eingeben [", lower_border, "< x1 <", upper_border, "] :")
 x_vorher[0] = input()
 print("Startpunkt eingeben [", lower_border, "< x2 <", upper_border, "] :")
 x_vorher[1] = input()
-b = 0  # Index des Schrittweiten-Arrays auf die maximale Schrittweite setzen
-i = 0  # Anzahl Grundlösungen (Der Iterator)
-rb_alert = 0
+b = 0  # Index des Schrittweiten-Arrays auf die größte Schrittweite setzen
+i = 0  # Anzahl Iterationsschritte
+rb_alert = 0    # Soll das unendliche Suchen außerhalb der Randbedingungen verhindern
 
-# Ausgabe -------------------------------------------------------------------------------
-xSpeicher = [x_vorher]
-zSpeicher = []
+# Gradientenmethode ----------------------------------------------------------------------------------------------------
+xSpeicher = [x_vorher]  # Abspeichern des Ortes in jedem Iterationsschritt
+zSpeicher = []  # Abspeichern des Wertes der Zielfunktion in jedem Iterationsschritt
 
 while True:
     print("--------------------------------")
-    i = i + 1
+    i = i + 1   # Iterationsschritt hochzählen
     print("Schritt:", i)
-    print("Lambda:", s[b])
+    print("Lambda:", s[b])  # Schrittweite ausgeben
 
     # Koordinaten des neuen Punktes berechnen
     x_aktuell = x_vorher - s[b] * grad(x_vorher) / np.linalg.norm(grad(x_vorher))
@@ -58,19 +58,19 @@ while True:
     print("x_vorher:", x_vorher)
     print("x_aktuell:", x_aktuell)
 
-    # Überprüfen der Randbedingungen verletzt
+    # Überprüfen, ob Randbedingungen verletzt
     if ((x_aktuell[0] or x_aktuell[1]) < lower_border) or ((x_aktuell[0] or x_aktuell[1]) > upper_border):
         b = b + 1
         b = boundary(b)
         rb_alert = rb_alert + 1
-        if rb_alert == 100:
+        if rb_alert == 1000:    # nach 1000 Schritten ohne neue Berechnung des Ortes wird abgebrochen
             print("|-----------------------------")
             print("| Aufgrund von verletzten Randbedingungen kann keine Lösung gefunden werden.")
             print("| Bitte wählen Sie einen anderen Startpunkt. ¯\_(ツ)_/¯ ")
             print("|-----------------------------")
             break
         continue
-    # falls nicht verletzt, dann
+    # falls Randbedingungen nicht verletzt, dann
     else:
         # Zielfunktionswerte berechnen
         f_vorher = z(x_vorher)
@@ -84,7 +84,7 @@ while True:
         print("Verbesserung:", verbesserung)
 
         # Abbruchkriterium
-        if abs(verbesserung) <= 0.01:
+        if abs(verbesserung) <= 0.01:   # Betrag der Verbesserung
             # Ausgabe des gefundenen Minimums und dessen Ort
             print("|-----------------------------")
             print("| Es wurde ein Minimum gefunden (◠‿◠)")
@@ -93,16 +93,19 @@ while True:
             print("|-----------------------------")
             break
 
-        if verbesserung < 0:
-            b = b + 1
-            b = boundary(b)
-        elif verbesserung > 0:
-            b = b - 1
-            b = boundary(b)
-            x_vorher = x_aktuell
-            xSpeicher.append(x_vorher)
-            zSpeicher.append(f_vorher)
+        if verbesserung < 0:    # Verschlechterung der Zielfunktion
+            b = b + 1           # Schrittweite verringern
+            b = boundary(b)     # Überprüfen ob außerhalb des Schrittweiten-Arrays
+        elif verbesserung > 0:  # Verbesserung der Zielfunktion
+            b = b - 1           # Schrittweite vergrößern
+            b = boundary(b)     # Überprüfen ob außerhalb des Schrittweiten-Arrays
 
+            x_vorher = x_aktuell        # neuer Ort wird für den nächsten Iterationsschritt übernommmen
+            xSpeicher.append(x_vorher)  # Ort wird abgespeichert
+            zSpeicher.append(f_vorher)  # Wert der Zielfunktion wird abgespeichert
+
+
+# Darstellung ----------------------------------------------------------------------------------------------------------
 
 # Anpassung Schriftart & -größe für Plots
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
@@ -120,7 +123,7 @@ ax[0].plot(xArray[:, 0], xArray[:, 1], 'r.-')
 ax[0].set_title('Entwurfsraum')
 ax[0].set_xlabel(r'$x_1\ [\textrm{cm}^2]$')
 ax[0].set_ylabel(r'$x_2\ [\textrm{cm}^2]$')
-ax[0].set_xlim(lower_border, upper_border)
+ax[0].set_xlim(lower_border, upper_border)      # Dargestellter Bereich begrenzt durch Grenzen der Randbedingungen
 ax[0].set_ylim(lower_border, upper_border)
 # plot der Zielfunktion über Iterationsschritte
 ax[1].plot(zSpeicher, 'b.-')
